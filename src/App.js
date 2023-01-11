@@ -1,22 +1,31 @@
-import { useEffect, useState } from "react";
+import { useMemo, useCallback, useEffect, useState } from "react";
 import "./App.css";
 
 export const App = () => {
-  const [ourText, setOurText] = useState("");
-  const msg = new SpeechSynthesisUtterance();
+  const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const text = urlParams.get("text");
+  const [ourText, setOurText] = useState(text);
 
-  const speechHandler = (msg) => {
-    msg.text = ourText;
-    window.speechSynthesis.speak(msg);
-  };
+  const speechHandler = useCallback(
+    (msg) => {
+      msg.text = ourText;
+      window.speechSynthesis.speak(msg);
+    },
+    [ourText]
+  );
 
-  const handleUserKeyPress = (event) => {
-    const { keyCode } = event;
+  const handleUserKeyPress = useCallback(
+    (event) => {
+      const { keyCode } = event;
 
-    if (keyCode === 13) {
-      speechHandler(msg);
-    }
-  };
+      if (keyCode === 13) {
+        speechHandler(msg);
+      }
+    },
+    [speechHandler, msg]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeyPress);
@@ -24,7 +33,7 @@ export const App = () => {
     return () => {
       window.removeEventListener("keydown", handleUserKeyPress);
     };
-  });
+  }, [msg, ourText, handleUserKeyPress, speechHandler]);
 
   return (
     <div className="App">
