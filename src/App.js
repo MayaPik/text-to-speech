@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
+
 
 const useSpeechSynthesis = () => {
   const [voices, setVoices] = useState([]);
@@ -7,6 +8,8 @@ const useSpeechSynthesis = () => {
 
   const updateVoices = () => {
     setVoices(synth.current.getVoices());
+    console.log(synth.current.getVoices())
+
   };
 
   const speak = (text, voice, pitch = 1, rate = 1) => {
@@ -32,16 +35,15 @@ const useSpeechSynthesis = () => {
 };
 
 export const App = () => {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-
+  let queryString = window.location.search;
+  let urlParams = new URLSearchParams(queryString);
   const [voices, speak] = useSpeechSynthesis();
-  const [currentVoice, setCurrentVoice] = useState();
+  const [currentVoice, setCurrentVoice] = useState(voices[5]);
   const [text, setText] = useState(urlParams.get("text"));
 
   useEffect(() => {
     if (!currentVoice) {
-      setCurrentVoice(voices.filter((v) => v.default)[0] || voices[0]);
+      setCurrentVoice(voices.filter((v) => v.default)[5] || voices[5]);
     }
   }, [currentVoice, voices]);
 
@@ -56,21 +58,23 @@ export const App = () => {
   const handleSpeak = (e) => {
     e.preventDefault();
     speak(text, currentVoice);
+    const encodedText = encodeURIComponent(text);
+    const url = `?text=${encodedText}`;
+    window.history.replaceState(text, "", url)
   };
 
   return (
     <form className="contain" onSubmit={handleSpeak}>
       <div className="select">
-        <select value={currentVoice ? currentVoice.name : ""} onChange={handleVoiceChange}>
+        <select value={currentVoice ? currentVoice.name : ""} onChange={handleVoiceChange} >
           {voices.map((v) => (
-            <option key={v.name} value={v.name}>{`${v.name}`}</option>
+            <option key={v.name} value={v.name }>{`${v.name + " (" +  v.lang +")"}`}</option>
           ))}
         </select>
       </div>
-
       <input type="text" value={text} onChange={handleTextChange} aria-label="text" />
-
       <button type="submit">🗣</button>
+      
     </form>
   );
 };
