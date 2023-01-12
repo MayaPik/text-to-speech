@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
-
 
 const useSpeechSynthesis = () => {
   const [voices, setVoices] = useState([]);
@@ -8,8 +7,6 @@ const useSpeechSynthesis = () => {
 
   const updateVoices = () => {
     setVoices(synth.current.getVoices());
-    console.log(synth.current.getVoices())
-
   };
 
   const speak = (text, voice, pitch = 1, rate = 1) => {
@@ -35,11 +32,13 @@ const useSpeechSynthesis = () => {
 };
 
 export const App = () => {
+  let [buttonText, setButtonText] = useState("📤");
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
   const [voices, speak] = useSpeechSynthesis();
   const [currentVoice, setCurrentVoice] = useState(voices[5]);
   const [text, setText] = useState(urlParams.get("text"));
+
 
   useEffect(() => {
     if (!currentVoice) {
@@ -63,6 +62,16 @@ export const App = () => {
     window.history.replaceState(text, "", url)
   };
 
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setButtonText("Copied!");
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      setButtonText("Copy URL");
+    }
+  }
+
   return (
     <form className="contain" onSubmit={handleSpeak}>
       <div className="select">
@@ -73,8 +82,8 @@ export const App = () => {
         </select>
       </div>
       <input type="text" value={text} onChange={handleTextChange} aria-label="text" />
+      <button onClick={handleCopyClick}>{buttonText}</button>
       <button type="submit">🗣</button>
-      
     </form>
   );
 };
