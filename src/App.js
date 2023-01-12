@@ -64,6 +64,9 @@ export const App = () => {
   };
 
   const handleCopyClick = async () => {
+    const encodedText = encodeURIComponent(text);
+    const url = `?text=${encodedText}`;
+    window.history.replaceState(text, "", url)
     try {
       await navigator.clipboard.writeText(window.location.href);
       setButtonText("Copied!");
