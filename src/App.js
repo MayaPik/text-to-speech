@@ -32,17 +32,18 @@ const useSpeechSynthesis = () => {
 };
 
 export const App = () => {
+
   let [buttonText, setButtonText] = useState("📤");
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
   const [voices, speak] = useSpeechSynthesis();
-  const [currentVoice, setCurrentVoice] = useState(voices[5]);
+  let index = (voices.map(e => e.name).indexOf('Carmit'))
+  const [currentVoice, setCurrentVoice] = useState(voices[index]);
   const [text, setText] = useState(urlParams.get("text"));
-
 
   useEffect(() => {
     if (!currentVoice) {
-      setCurrentVoice(voices.filter((v) => v.default)[5] || voices[5]);
+      setCurrentVoice(voices.filter((v) => v.default)[index] || voices[index]);
     }
   }, [currentVoice, voices]);
 
