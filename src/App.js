@@ -32,7 +32,6 @@ const useSpeechSynthesis = () => {
 };
 
 export const App = () => {
-
   let [buttonText, setButtonText] = useState("📤");
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
@@ -41,9 +40,11 @@ export const App = () => {
   const [currentVoice, setCurrentVoice] = useState(voices[index]);
   const [text, setText] = useState(urlParams.get("text"));
 
+
   useEffect(() => {
     if (!currentVoice) {
       setCurrentVoice(voices.filter((v) => v.default)[index] || voices[index]);
+
     }
   }, [currentVoice, voices]);
 
