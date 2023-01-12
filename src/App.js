@@ -32,13 +32,13 @@ const useSpeechSynthesis = () => {
 };
 
 export const App = () => {
-
   let [buttonText, setButtonText] = useState("📤");
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
   const [voices, speak] = useSpeechSynthesis();
   const [currentVoice, setCurrentVoice] = useState(voices[0]);
   const [text, setText] = useState(urlParams.get("text"));
+
 
   useEffect(() => {
     if (!currentVoice) {
