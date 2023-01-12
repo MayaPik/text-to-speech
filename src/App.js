@@ -39,11 +39,10 @@ export const App = () => {
   const [currentVoice, setCurrentVoice] = useState(voices[0]);
   const [text, setText] = useState(urlParams.get("text"));
 
-
   useEffect(() => {
     if (!currentVoice) {
-      let index = (voices.map(e => e.name).indexOf('Carmit'))
-      setCurrentVoice(voices.filter((v) => v.default)[index] || voices[index]);
+      let hebrewVoice = voices.find(voice => voice.lang.includes('he'));
+      setCurrentVoice(hebrewVoice);
     }
   }, [currentVoice, voices]);
 
@@ -63,7 +62,8 @@ export const App = () => {
     window.history.replaceState(text, "", url)
   };
 
-  const handleCopyClick = async () => {
+  const handleCopyClick = async (e) => {
+    e.preventDefault();
     const encodedText = encodeURIComponent(text);
     const url = `?text=${encodedText}`;
     window.history.replaceState(text, "", url)
@@ -86,7 +86,7 @@ export const App = () => {
         </select>
       </div>
       <input type="text" value={text} onChange={handleTextChange} aria-label="text" />
-      <button onClick={handleCopyClick}>{buttonText}</button>
+      <button type='click' onClick={handleCopyClick}>{buttonText}</button>
       <button type="submit">🗣</button>
     </form>
   );
