@@ -68,7 +68,7 @@ export const App = () => {
         </select>
       </div>
 
-      <input type="text" value={text} onChange={handleTextChange} />
+      <input type="text" value={text} onChange={handleTextChange} aria-label="text" />
 
       <button type="submit">🗣</button>
     </form>
