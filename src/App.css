@@ -90,10 +90,8 @@ button {
   flex: 0 1 auto;
   position: relative;
   font-size: 24px;
-
-  color: #FFFFFF;
+  color: purple;
   padding: 0 16px;
-
   text-align: center;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
