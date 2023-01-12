@@ -36,15 +36,14 @@ export const App = () => {
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
   const [voices, speak] = useSpeechSynthesis();
-  let index = (voices.map(e => e.name).indexOf('Carmit'))
-  const [currentVoice, setCurrentVoice] = useState(voices[index]);
+  const [currentVoice, setCurrentVoice] = useState(voices[0]);
   const [text, setText] = useState(urlParams.get("text"));
 
 
   useEffect(() => {
     if (!currentVoice) {
+      let index = (voices.map(e => e.name).indexOf('Carmit'))
       setCurrentVoice(voices.filter((v) => v.default)[index] || voices[index]);
-
     }
   }, [currentVoice, voices]);
 
