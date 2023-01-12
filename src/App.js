@@ -1,51 +1,76 @@
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-export const App = () => {
-  const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const text = urlParams.get("text");
-  const [ourText, setOurText] = useState(text);
+const useSpeechSynthesis = () => {
+  const [voices, setVoices] = useState([]);
+  const synth = useRef();
 
-  const speechHandler = useCallback(
-    (msg) => {
-      msg.text = ourText;
-      window.speechSynthesis.speak(msg);
-    },
-    [ourText]
-  );
+  const updateVoices = () => {
+    setVoices(synth.current.getVoices());
+  };
 
-  const handleUserKeyPress = useCallback(
-    (event) => {
-      const { keyCode } = event;
-
-      if (keyCode === 13) {
-        speechHandler(msg);
-      }
-    },
-    [speechHandler, msg]
-  );
+  const speak = (text, voice, pitch = 1, rate = 1) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voice;
+    utterance.pitch = pitch;
+    utterance.rate = rate;
+    synth.current.speak(utterance);
+  };
 
   useEffect(() => {
-    window.addEventListener("keydown", handleUserKeyPress);
+    if (typeof window !== "object" || !window.speechSynthesis) return;
+    synth.current = window.speechSynthesis;
+    synth.current.onvoiceschanged = updateVoices;
+    updateVoices();
 
     return () => {
-      window.removeEventListener("keydown", handleUserKeyPress);
+      synth.current.onvoiceschanged = null;
     };
-  }, [msg, ourText, handleUserKeyPress, speechHandler]);
+  }, []);
+
+  return [voices, speak];
+};
+
+export const App = () => {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  const [voices, speak] = useSpeechSynthesis();
+  const [currentVoice, setCurrentVoice] = useState();
+  const [text, setText] = useState(urlParams.get("text"));
+
+  useEffect(() => {
+    if (!currentVoice) {
+      setCurrentVoice(voices.filter((v) => v.default)[0] || voices[0]);
+    }
+  }, [currentVoice, voices]);
+
+  const handleVoiceChange = (e) => {
+    setCurrentVoice(voices.filter((v) => v.name === e.target.value)[0]);
+  };
+
+  const handleTextChange = (e) => {
+    setText(e.target.value);
+  };
+
+  const handleSpeak = (e) => {
+    e.preventDefault();
+    speak(text, currentVoice);
+  };
 
   return (
-    <div className="App">
-      <h1>Maya and Aharon Text to Speech</h1>
-      <textarea
-        rows={10}
-        type="text"
-        value={ourText}
-        placeholder="Enter Text"
-        onChange={(e) => setOurText(e.target.value)}
-      ></textarea>
-      <button onClick={() => speechHandler(msg)}>SPEAK</button>
-    </div>
+    <form className="contain" onSubmit={handleSpeak}>
+      <div className="select">
+        <select value={currentVoice ? currentVoice.name : ""} onChange={handleVoiceChange}>
+          {voices.map((v) => (
+            <option key={v.name} value={v.name}>{`${v.name}`}</option>
+          ))}
+        </select>
+      </div>
+
+      <input type="text" value={text} onChange={handleTextChange} />
+
+      <button type="submit">🗣</button>
+    </form>
   );
 };
